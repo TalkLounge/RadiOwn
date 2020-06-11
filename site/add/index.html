@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8"/>
+	<title>Add - RadiOwn Extension</title>
+	
+	<link rel="shortcut icon" href="/icons/RadiOwn.png" />
+	<link rel="apple-touch-icon" href="/icons/RadiOwn.png" />
+	<link rel="apple-touch-icon-precomposed" href="/icons/RadiOwn.png" />
+	
+	<link rel="stylesheet" type="text/css" href="/libs/bootstrap-4.4.1.min.css"/>
+	<link rel="stylesheet" type="text/css" href="/libs/bootstrap-slider-10.6.2.min.css"/>
+	<link rel="stylesheet" type="text/css" href="./style.css"/>
+</head>
+<body class="container">
+	<ul class="nav nav-tabs" id="nav">
+		<li class="nav-item">
+			<a class="nav-link" href="/site/overview/index.html">Overview</a>
+		</li>
+		<li class="nav-item">
+			<a class="nav-link active" href="/site/add/index.html">Add</a>
+		</li>
+		<li class="nav-item">
+			<a class="nav-link" href="/site/friends/index.html">Friends</a>
+		</li>
+		<li class="nav-item">
+			<a class="nav-link" href="/site/settings/index.html">Settings</a>
+		</li>
+	</ul>
+	
+	<main class="container" id="main">
+		<section>
+			<h3>Search Song</h3>
+			<p>Search song or insert youtube video url</p>
+			<div class="input-group mb-3">
+				<input id="url" type="text" class="form-control" placeholder="e.g. Rolipso - Jumble" aria-label="YouTube Search" aria-describedby="search" value="https://www.youtube.com/watch?v=tmj4MxMiScg">
+				<div class="input-group-append">
+					<button id="search" class="btn btn-outline-primary" type="button">Search</button>
+				</div>
+			</div>
+			<div id="searchresultsBorder" class="searchresultsBorder">
+				<div id="searchresults" class="searchresults">
+					<!-- <div class="searchresultBorder d-inline-block">
+						<div class="searchresult">
+							<img class="searchresultThumbnail" src="https://i.ytimg.com/vi/opYAyx1Humc/maxresdefault.jpg" />
+							<span class="searchresultTitle font-weight-bold text-center">Jarico - Island [NCS BEST OF]</span>
+							<span class="searchresultChannel">No Copyright Sounds - Best OF</span>
+						</div>
+					</div> -->
+				</div>
+			</div>
+		</section>
+		
+		<section id="edit">
+			<h3>Edit Video</h3>
+			<p>Edit your added youtube video</p>
+			<div class="embed-responsive embed-responsive-16by9">
+				<div id="player" class="embed-responsive-item"></div>
+			</div>
+			
+			<!-- TODO -->
+			
+			<label>Start/End</label>
+			<div>
+				<span id="startTime">00:00</span>
+				<span id="endTime" class="float-right">03:48</span>
+			</div>
+			<input id="slider" type="text"/>
+			
+			<label>Artist</label>
+			<select class="form-control" id="artistSelect">
+				<option selected>Jarico</option>
+			</select>
+			<input id="artist" class="form-control" type="text" placeholder="Artist" aria-label="Artist">
+			
+			<label>Title</label>
+			<select class="form-control" id="titleSelect">
+				<option selected>Summer Dream</option>
+			</select>
+			<input id="title" class="form-control" type="text" placeholder="Title" aria-label="Title">
+			
+			<button>Edit</button>
+		</section>
+	</main>
+	
+	<script src="/libs/jquery-3.5.0.min.js"></script>
+	<script src="/libs/bootstrap-4.4.1.min.js"></script>
+	<script src="/libs/bootstrap-slider-10.6.2.min.js"></script>
+	<script src="https://www.youtube.com/iframe_api"></script>
+	<script src="./script.js"></script>
+</body>
+</html>

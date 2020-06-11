@@ -1,0 +1,64 @@
+#nav {
+	margin-top: 20px;
+}
+
+#main {
+	margin-top: 15px;
+}
+
+.searchresultsBorder {
+	height: 406px;
+	overflow: hidden;
+	display: none;
+}
+
+.searchresults {
+	width: 103%;
+	height: 100%;
+	overflow-y: scroll;
+}
+
+.searchresultBorder {
+	width: 360px;
+	height: 203px;
+}
+
+.searchresult {
+	width: 360px;
+	height: 203px;
+	position: relative;
+	cursor: pointer;
+}
+
+.searchresultThumbnail {
+	width: 350px;
+	height: 193px;
+	opacity: 0.3;
+	margin-left: 5px;
+	margin-top: 5px;
+}
+
+.searchresultTitle {
+	position: absolute;
+	top: 5%;
+	left: 5%;
+	right: 5%;
+}
+
+.searchresultChannel {
+	position: absolute;
+	bottom: 5%;
+	left: 5%;
+}
+
+#edit {
+	display: none;
+}
+
+label {
+	display: block;
+}
+
+.slider.slider-horizontal {
+	width: 100%;
+}
