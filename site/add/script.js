@@ -1,10 +1,12 @@
-var player, searchresults, videoData, lastSearchterm, updateSlider, videoLength, playerReady, loadEditYtid, slider, sliderValue, sliderCheckPlayInterval;
-var apiKey = "AIzaSyCQHHBtF7USK9B4PGSVw2EXq3OfNVNs3fY";
+var player, searchresults, videoData, searchtermPrevious, playerReady, callGenerateVideo, callGenerateEdit, videoLength, slider, sliderValue, sliderCheckPlayInterval;
+//var apiKey = "AIzaSyCQHHBtF7USK9B4PGSVw2EXq3OfNVNs3fY";
+var apiKey = "AIzaSyBQru400PwMRXJzs0cHZVkKtzWlx7yiAwk";
 
 function playerOnReady() {
 	playerReady = true;
-	if (loadEditYtid) {
-		loadEdit(loadEditYtid);
+	if (callGenerateVideo) {
+		callGenerateVideo = false;
+		generateVideo();
 	}
 }
 
@@ -79,7 +81,7 @@ function sliderOnStop(event) {
 	console.log(slider.slider("getValue"));
 }
 
-function loadSlider() {
+function generateSlider() {
 	videoLength = Math.floor(player.getDuration());
 	slider = $("#slider").slider({
 		min: 0,
@@ -94,9 +96,9 @@ function loadSlider() {
 }
 
 function playerOnStateChange(event) {
-	if (event.data === YT.PlayerState.PLAYING && updateSlider) {
-		updateSlider = false;
-		loadSlider();
+	if (event.data === YT.PlayerState.PLAYING && callGenerateEdit) {
+		callGenerateEdit = false;
+		generateEdit();
 	} else if (event.data === YT.PlayerState.PAUSED) {
 		clearInterval(sliderCheckPlayInterval);
 	}
@@ -130,27 +132,83 @@ function getYoutubeId(url) { // https://stackoverflow.com/a/54200105
 	return (url[2] !== undefined) ? url[2].split(/[^0-9a-z_\-]/i)[0] : url[0];
 }
 
-function loadEdit(ytid) {
-	if (! playerReady) {
-		loadEditYtid = ytid;
-		return;
+function generateArtistTitle() {
+	var videoTitle = videoData.snippet.title;
+	var replacePattern = ["Official Audio",
+						  "Audio",
+						  "Official Music Video",
+						  "Official Video",
+						  "Video",
+						  "Official Lyric Video",
+						  "Official Lyrics",
+						  "Lyrics",
+						  "Official Version"];
+	replacePattern.push(videoData.snippet.channelTitle +" Release");
+	var channelAbbreviation = "";
+	var channelTitle = videoData.snippet.channelTitle.split(" ");
+	for (var i = 0; i < channelTitle.length; i++) {
+		channelAbbreviation += channelTitle[i].charAt(0);
 	}
-	updateSlider = true;
-	player.loadVideoById(ytid || videoData.id.videoId);
-	$("#edit").css("display", "block");
+	replacePattern.push(channelAbbreviation +" Release");
+	replacePattern.push(videoData.snippet.channelTitle);
+	for (var i = 0; i < replacePattern.length; i++) {
+		videoTitle = videoTitle.replace("["+ replacePattern[i] +"]", "");
+		videoTitle = videoTitle.replace("("+ replacePattern[i] +")", "");
+		videoTitle = videoTitle.replace("["+ replacePattern[i].toLowerCase() +"]", "");
+		videoTitle = videoTitle.replace("("+ replacePattern[i].toLowerCase() +")", "");
+	}
+	videoTitle = videoTitle.replace(/&amp;/g, "&").trim();
+	var artists = [];
+	var titles = [];
+	for (var i = 1; i < videoTitle.split("-").length; i++) {
+		artists.push(videoTitle.split("-").splice(0, i).join("-").replace("feat.", "ft.").trim());
+		titles.push(videoTitle.split("-").splice(i).join("-").replace("feat.", "ft.").trim());
+	}
+	for (var i = 0; i < titles.length; i++) {
+		var index = titles[i].indexOf("ft.");
+		if (index !== -1) {
+			var sub = titles[i].substring(index);
+			artists[i] += " "+ sub;
+			titles[i] = titles[i].replace(sub, "").trim();
+		}
+	}
+	// TODO: Remix with pattern search back to title : Timbaland ft. OneRepublic (Besomorph, Anthony Keyrouz, Lunis Remix)
+	$("#artist").val("");
+	$("#title").val("");
+	$("#artists").empty();
+	$("#titles").empty();
+	for (var i = 0; i < artists.length; i++) {
+		$("#artists").append(newElement("option", {"value": artists[i]}));
+		$("#titles").append(newElement("option", {"value": titles[i]}));
+	}
+}
+
+function generateEdit() {
+	generateSlider();
+	generateArtistTitle();
 	$("#searchresultsBorder").css("display", "none");
+	$("#edit").css("display", "block");
 	$("html, body").animate({scrollTop: $("#edit").offset().top}, 500);
 }
 
-function loadVideoData(data) {
-	console.log(data);
-	videoData = data.items[0];
+function generateVideo() {
+	if (! playerReady) {
+		callGenerateVideo = true;
+		return;
+	}
+	callGenerateEdit = true;
+	player.loadVideoById(videoData.id.videoId || videoData.id);
 }
 
-function loadVideo(url) {
+function loadedVideoData(data) {
+	console.log(data);
+	videoData = data.items[0];
+	generateVideo();
+}
+
+function loadVideoData(url) {
 	var ytid = getYoutubeId(url);
-	$.getJSON("https://www.googleapis.com/youtube/v3/videos?part=snippet&key="+ apiKey +"&id="+ ytid, loadVideoData);
-	loadEdit(ytid);
+	$.getJSON("https://www.googleapis.com/youtube/v3/videos?part=snippet&key="+ apiKey +"&id="+ ytid, loadedVideoData);
 }
 
 function newElement(tagName, attributes, content) {
@@ -162,13 +220,13 @@ function newElement(tagName, attributes, content) {
 	return tag.outerHTML;
 }
 
-function clickedSearchresult() {
+function searchresultClicked() {
 	var id = $(this).data("id");
 	videoData = searchresults[id];
-	loadEdit();
+	generateVideo();
 }
 
-function loadSearchresults(data) {
+function generateSearchresults(data) {
 	console.log(data);
 	searchresults = data.items;
 	$("#searchresults").empty();
@@ -181,24 +239,24 @@ function loadSearchresults(data) {
 								  newElement("span", {"class": "searchresultChannel"}, searchresults[i].snippet.channelTitle))));
 	}
 	$("#searchresultsBorder").css("display", "block");
-	$(".searchresult").click(clickedSearchresult);
+	$(".searchresult").click(searchresultClicked);
 }
 
-function searchVideo(searchterm) {
-	if (searchterm === lastSearchterm) {
+function loadVideoSearch(searchterm) {
+	if (searchterm === searchtermPrevious) {
 		$("#searchresultsBorder").css("display", "block");
 	} else {
-		lastSearchterm = searchterm;
-		$.getJSON("https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=24&type=video&videoEmbeddable=true&videoSyndicated=true&key="+ apiKey +"&q="+ searchterm, loadSearchresults);
+		searchtermPrevious = searchterm;
+		$.getJSON("https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=24&type=video&videoEmbeddable=true&videoSyndicated=true&key="+ apiKey +"&q="+ searchterm, generateSearchresults);
 	}
 }
 
 function searchOrLoad() {
 	var url = $("#url").val();
 	if (isUrl(url)) {
-		loadVideo(url);
+		loadVideoData(url);
 	} else {
-		searchVideo(url);
+		loadVideoSearch(url);
 	}
 }
 

@@ -60,26 +60,32 @@
 			
 			<!-- TODO -->
 			
-			<label>Start/End</label>
+			<h4>Start & End</h4>
 			<div>
 				<span id="startTime">00:00</span>
 				<span id="endTime" class="float-right">03:48</span>
 			</div>
 			<input id="slider" type="text"/>
 			
-			<label>Artist</label>
-			<select class="form-control" id="artistSelect">
-				<option selected>Jarico</option>
-			</select>
-			<input id="artist" class="form-control" type="text" placeholder="Artist" aria-label="Artist">
+			<h4>Artist & Title</h4>
+			<div class="row">
+				<div class="col">
+					<input id="artist" class="custom-select" type="text" placeholder="Artist" list="artists" aria-label="Artist"/>
+					<datalist id="artists">
+						<option value="Jarico 1">
+						<option value="Jarico 2">
+					</datalist>
+				</div>
+				<div class="col">
+					<input id="title" class="custom-select" type="text" placeholder="Title" list="titles" aria-label="Title"/>
+					<datalist id="titles">
+						<option value="Holiday 1">
+						<option value="Holiday 2">
+					</datalist>
+				</div>
+			</div>
 			
-			<label>Title</label>
-			<select class="form-control" id="titleSelect">
-				<option selected>Summer Dream</option>
-			</select>
-			<input id="title" class="form-control" type="text" placeholder="Title" aria-label="Title">
-			
-			<button>Edit</button>
+			<h4>Audio Tags</h4>
 		</section>
 	</main>
 	

@@ -1,9 +1,9 @@
 var playersInitialized = false;
 var player1, player2, playerCurrent, playerFuture, playerSong, playerInterval, playerCurrentNumber;
 var mixTime = 10000;
-var volume = 100;
+var playerVolume = 100;
 
-function nextSong() {
+function randomSong() {
 	var songs = [{"videoId": "kSmMOsJmkfs", "artist": "Arc North feat. Krista Marina", "title": "Meant To Be"},
 				 {"videoId": "z_0u00b1iEQ", "artist": "Arc North", "title": "Never Gonna"},
 				 {"videoId": "7wYu7pTBM5A", "artist": "Daniel Rosty & Sash_S", "title": "See The Stars"},
@@ -37,18 +37,17 @@ function nextSong() {
 				 {"videoId": "0fLMSubepkY", "artist": "MBB", "title": "Island"},
 				 {"videoId": "YdOVfRQ0MLQ", "artist": "High Rule", "title": "Control (Instrumental)"}];
 	
-	playerSong = songs[Math.round(Math.random() * (songs.length - 1))];
-	console.log(playerSong);
-	chrome.runtime.sendMessage({"action": 5, "song": playerSong});
+	return songs[Math.round(Math.random() * (songs.length - 1))];
 }
 
 function onYouTubeIframeAPIReady() {
-	nextSong();
+	playerSong = randomSong();
 	
 	player1 = new YT.Player("player1", {
 		height: "720",
 		width: "1080",
 		videoId: playerSong["videoId"],
+		playerVars: {"start": playerSong["start"] || 0},
 		events: {
 			"onReady": playerPlay
 		}
@@ -87,51 +86,58 @@ function sleep(ms) {
 	return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-async function playerDecrease() {
-	var vol = Math.max(playerFuture.getVolume() - Math.round((5 / (100 / volume))), 0);
-	console.log("Alter Player: "+ vol);
-	playerFuture.setVolume(vol);
-	if (vol > 0) {
-		await sleep(Math.round(mixTime / 20));
-		return playerDecrease();
-	} else {
-		playerFuture.pauseVideo();
+async function playerMix() {
+	console.log("playerMix");
+	var nextSong = randomSong();
+	playerFuture.cueVideoById(nextSong["videoId"], nextSong["start"] || 0);
+	playerFuture.setVolume(Math.round(playerVolume / 2));
+	
+	var volCurrent = playerVolume;
+	var volFuture = playerVolume / 2;
+	var volStep = playerVolume / 20;
+	var sleepCounter = 0;
+	var playing = false;
+	var firstStep = true;
+	
+	while (true) {
+		volCurrent -= volStep;
+		console.log("Current Decrease "+ volCurrent);
+		playerCurrent.setVolume(Math.round(volCurrent));
+		if (sleepCounter >= mixTime / 2 - 2500 && ! playing) {
+			console.log("Player Play");
+			playerFuture.playVideo();
+			playing = true;
+		}
+		if (volCurrent <= playerVolume / 2) {
+			if (firstStep) {
+				console.log("First Step");
+				firstStep = false;
+			} else {
+				volFuture += volStep;
+				console.log("Future Increae "+ volFuture);
+				playerFuture.setVolume(Math.round(volFuture));
+			}
+		}
+		if (volCurrent <= 0) {
+			console.log("Under 0");
+			break;
+		}
+		sleepCounter += mixTime / 20;
+		await sleep(mixTime / 20);
 	}
-}
-
-async function playerIncrease() {
-	var vol = Math.min(playerCurrent.getVolume() + Math.round((5 / (100 / volume))), volume);
-	console.log("Neue Player: "+ vol);
-	playerCurrent.setVolume(vol);
-	if (vol < volume) {
-		await sleep(Math.round(mixTime / 20));
-		return playerIncrease();
-	}
+	playerPause();
+	playerSong = nextSong;
 }
 
 async function playerCheck() {
 	if (playerCurrent.getCurrentTime() < (playerSong["end"] || playerCurrent.getDuration()) - (mixTime / 1000)) {
 		return;
 	}
-	console.log("Clear Interval");
 	clearInterval(playerInterval);
+	await playerMix();
 	playerToggle();
-	console.log("Player Decrease");
-	playerDecrease();
-	nextSong();
-	playerCurrent.cueVideoById(playerSong["videoId"], playerSong["start"] || 0);
-	playerCurrent.setVolume(Math.round(volume / 2));
-	console.log(mixTime / 15000);
-	await sleep(Math.round(mixTime / 2 * (mixTime / 15000)));
-	console.log("Warten 1 um");
-	playerCurrent.playVideo();
-	console.log(1 - (mixTime / 15000));
-	await sleep(Math.round(mixTime / 2 * (1 - (mixTime / 15000))));
-	console.log("Warten 2 um");
-	playerIncrease();
-	await sleep(Math.round(mixTime / 2));
-	console.log("Warten 3 um");
 	playerInterval = setInterval(playerCheck, 1000);
+	chrome.runtime.sendMessage({"action": 5, "song": playerSong});
 }
 
 function playerPlay() {
@@ -140,7 +146,7 @@ function playerPlay() {
 		playersInit();
 		return;
 	}
-	playerCurrent.setVolume(volume);
+	playerCurrent.setVolume(playerVolume);
 	playerCurrent.playVideo();
 	playerInterval = setInterval(playerCheck, 1000);
 }

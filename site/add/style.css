@@ -55,10 +55,18 @@
 	display: none;
 }
 
-label {
+/* label {
 	display: block;
+} */
+
+h4 {
+	margin-top: 25px;
 }
 
 .slider.slider-horizontal {
 	width: 100%;
+}
+
+input::-webkit-calendar-picker-indicator {
+	display: none;
 }
