@@ -1,6 +1,4 @@
 var player, searchresults, videoData, searchtermPrevious, playerReady, callGenerateVideo, callGenerateEdit, videoLength, slider, sliderValue, sliderCheckPlayInterval;
-//var apiKey = "AIzaSyCQHHBtF7USK9B4PGSVw2EXq3OfNVNs3fY";
-var apiKey = "AIzaSyBQru400PwMRXJzs0cHZVkKtzWlx7yiAwk";
 
 function playerOnReady() {
 	playerReady = true;
@@ -202,13 +200,21 @@ function generateVideo() {
 
 function loadedVideoData(data) {
 	console.log(data);
+	if (data.errorCode) {
+		alert(data.errorText);
+		return;
+	}
+	if (! data.items.length) {
+		alert("Invalid YouTube Link");
+		return;
+	}
 	videoData = data.items[0];
 	generateVideo();
 }
 
 function loadVideoData(url) {
 	var ytid = getYoutubeId(url);
-	$.getJSON("https://www.googleapis.com/youtube/v3/videos?part=snippet&key="+ apiKey +"&id="+ ytid, loadedVideoData);
+	$.getJSON("https://talklounge.ddns.net:34475/?type=video&q="+ ytid, loadedVideoData);
 }
 
 function newElement(tagName, attributes, content) {
@@ -228,6 +234,14 @@ function searchresultClicked() {
 
 function generateSearchresults(data) {
 	console.log(data);
+	if (data.errorCode) {
+		alert(data.errorText);
+		return;
+	}
+	if (! data.items.length) {
+		alert("No Searchresults found");
+		return;
+	}
 	searchresults = data.items;
 	$("#searchresults").empty();
 	for (var i = 0; i < searchresults.length; i++) {
@@ -247,7 +261,7 @@ function loadVideoSearch(searchterm) {
 		$("#searchresultsBorder").css("display", "block");
 	} else {
 		searchtermPrevious = searchterm;
-		$.getJSON("https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=24&type=video&videoEmbeddable=true&videoSyndicated=true&key="+ apiKey +"&q="+ searchterm, generateSearchresults);
+		$.getJSON("https://talklounge.ddns.net:34475/?type=search&q="+ searchterm, generateSearchresults);
 	}
 }
 
