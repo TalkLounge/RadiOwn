@@ -186,6 +186,7 @@ function generateEdit() {
 	generateArtistTitle();
 	$("#searchresultsBorder").css("display", "none");
 	$("#edit").css("display", "block");
+	$("#save").css("display", "block");
 	$("html, body").animate({scrollTop: $("#edit").offset().top}, 500);
 }
 
@@ -281,3 +282,30 @@ $("#url").keypress(function(e) {
 		searchOrLoad();
 	}
 });
+
+var tagify = new Tagify($("#tags")[0]);
+
+tagify.on("input", tagifyOnInput)
+	  .on("add", tagifyOnAdd);
+
+function loadAvailableTags() {
+	return new Promise(function(resolve, reject) {
+		resolve(["Remix", "Instrumental"]);
+	});
+}
+
+function tagifyOnInput(e) {
+	tagify.settings.whitelist.length = 0;
+	tagify.loading(true).dropdown.hide.call(tagify);
+	loadAvailableTags()
+		.then(function(result) {
+			tagify.settings.whitelist.push(...result, ...tagify.value);
+			tagify.loading(false).dropdown.show.call(tagify, e.detail.value);
+	});
+}
+
+function tagifyOnAdd(tag) {
+	if (tag.detail.data.value.indexOf(":") !== -1) {
+		tagify.removeTags(tag.detail.data.value);
+	}
+}

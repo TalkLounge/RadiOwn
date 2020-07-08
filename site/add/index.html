@@ -10,6 +10,7 @@
 	
 	<link rel="stylesheet" type="text/css" href="/libs/bootstrap-4.4.1.min.css"/>
 	<link rel="stylesheet" type="text/css" href="/libs/bootstrap-slider-10.6.2.min.css"/>
+	<link rel="stylesheet" type="text/css" href="/libs/tagify-3.14.2.css"/>
 	<link rel="stylesheet" type="text/css" href="./style.css"/>
 </head>
 <body class="container">
@@ -58,8 +59,6 @@
 				<div id="player" class="embed-responsive-item"></div>
 			</div>
 			
-			<!-- TODO -->
-			
 			<h4>Start & End</h4>
 			<div>
 				<span id="startTime">00:00</span>
@@ -86,12 +85,26 @@
 			</div>
 			
 			<h4>Audio Tags</h4>
+			<input id="tags" placeholder="Add tags" value='[{"value": "Added: 08.07.2020", "readonly" : true, "title": "read-only tag"}, {"value": "User: TalkLounge", "readonly" : true, "title": "read-only tag"}]'/>
+		</section>
+		
+		<section id="save">
+			<h3>Save</h3>
+			<p>Save your changes</p>
+			
+			<div class="text-center">
+				<button type="button" class="btn btn-primary btn-lg">Save</button>
+			</div>
+			
+			<br/>
+			<br/>
 		</section>
 	</main>
 	
 	<script src="/libs/jquery-3.5.0.min.js"></script>
 	<script src="/libs/bootstrap-4.4.1.min.js"></script>
 	<script src="/libs/bootstrap-slider-10.6.2.min.js"></script>
+	<script src="/libs/tagify-3.14.2.min.js"></script>
 	<script src="https://www.youtube.com/iframe_api"></script>
 	<script src="./script.js"></script>
 </body>

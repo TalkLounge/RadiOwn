@@ -51,13 +51,9 @@
 	left: 5%;
 }
 
-#edit {
+#edit, #save {
 	display: none;
 }
-
-/* label {
-	display: block;
-} */
 
 h4 {
 	margin-top: 25px;
@@ -69,4 +65,9 @@ h4 {
 
 input::-webkit-calendar-picker-indicator {
 	display: none;
+}
+
+tags {
+	border-radius: .25rem;
+	margin-bottom: 1rem;
 }
